@@ -1,0 +1,915 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua", true))()
+local window = library.CreateLib("ChrexHub", "Sentinel")
+local notification_library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/Dynissimo/main/Scripts/AkaliNotif.lua", true))()
+local notify = notification_library.Notify
+
+--Modules Settings Init
+getgenv().autofarmmode = "Normal"
+getgenv().autofarmworld = "Spawn"
+getgenv().autofarmarea = "Town"
+getgenv().autofarmtarget = "All"
+
+getgenv().eggtype = "Cracked Egg"
+getgenv().eggamount = 1
+getgenv().triplehatch = false
+
+getgenv().autogoldenrbmode = "Both"
+getgenv().autogoldenrbpetamount = 6
+
+--Home
+local home_tab = window:NewTab("Home")
+local home_section = home_tab:NewSection("Home")
+
+home_section:NewButton("Made by XXXTENTACION#9897", "Main Developer.", function()
+	setclipboard("XXXTENTACION#9897")
+end)
+
+home_section:NewButton("https://discord.com/invite/98yt5JfvUT (JOIN NOW)", "Join our Discord Server for Support and Updates! (It copy invite to your clipboard)", function()
+	notify({
+		Description = "Discord Server Invite Copied to Clipboard.";
+		Title = "Chrex Hub - Discord Server";
+		Duration = 3;
+	})
+	
+	setclipboard("https://discord.com/invite/98yt5JfvUT")
+
+	if KRNL_LOADED then
+		local json = {
+			["cmd"] = "INVITE_BROWSER",
+				["args"] = {
+					["code"] = "Chrexhub"
+				},
+
+			["nonce"] = "ChrexHub"
+		}
+
+		request({
+			Url = "http://127.0.0.1:6463/rpc?v=1",
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+				["Origin"] = "https://discord.com"
+			},
+			Body = game:GetService("HttpService"):JSONEncode(json)
+		})
+	elseif syn then
+		local json = {
+			["cmd"] = "INVITE_BROWSER",
+				["args"] = {
+					["code"] = "ChrexHub"
+				},
+
+			["nonce"] = "ChrexHub"
+		}
+
+		syn.request({
+			Url = "http://127.0.0.1:6463/rpc?v=1",
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+				["Origin"] = "https://discord.com"
+			},
+			Body = game:GetService("HttpService"):JSONEncode(json)
+		})
+	end
+end)
+
+home_section:NewButton("AntiAFK", "Yes, this is very advanced script I know :')", function()
+end)
+
+--Farming
+local farming_tab = window:NewTab("Farming")
+local autofarm_section = farming_tab:NewSection("AutoFarm")
+local autofarmsettings_section = farming_tab:NewSection("Settings")
+
+--AutoFarm
+autofarm_section:NewToggle("AutoFarm", "Toggle AutoFarm.", function(bool)
+	getgenv().autofarm = bool
+	if getgenv().autofarm then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - AutoFarm";
+			Duration = 3;
+		})
+
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("b", "join coin")
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("a", "farm coin")
+
+		while wait() and getgenv().autofarm do
+			if getgenv().autofarmtarget ~= "All" then
+				for coin, location in pairs(game.Workspace['__THINGS']['__REMOTES']["get coins"]:InvokeServer({})[1]) do
+					if game:GetService("Workspace")["__THINGS"].Coins:FindFirstChild(coin) then
+						if game:GetService("Workspace")["__THINGS"].Coins[coin]:FindFirstChild("Shine2", true) then
+							if location.w == getgenv().autofarmworld and getgenv().autofarmarea == location.n:gsub(" " .. getgenv().autofarmtarget, "") and getgenv().autofarmtarget == location.n:gsub(getgenv().autofarmarea .. " ", "") then
+								while wait() and getgenv().autofarm and game:GetService("Workspace")["__THINGS"].Coins:FindFirstChild(coin) do
+									for _, pet in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.Main.Pets:GetChildren()) do
+										if pet:FindFirstChild("Equipped") then
+											if pet.ClassName == 'TextButton' and pet.Equipped.Visible then
+												game.Workspace['__THINGS']['__REMOTES']["join coin"]:InvokeServer({[1] = coin, [2] = {[1] = pet.Name}})
+												game.Workspace['__THINGS']['__REMOTES']["farm coin"]:FireServer({[1] = coin, [2] = pet.Name})
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			else
+				for coin, location in pairs(game.Workspace['__THINGS']['__REMOTES']["get coins"]:InvokeServer({})[1]) do
+					if getgenv().autofarm and location.w == getgenv().autofarmworld and location.a == string.gsub(getgenv().autofarmarea, " Island", "") then
+						if game:GetService("Workspace")["__THINGS"].Coins:FindFirstChild(coin) then
+							if getgenv().autofarmmode == "Normal" then
+								while wait() and getgenv().autofarm and game:GetService("Workspace")["__THINGS"].Coins:FindFirstChild(coin) do
+									for _, pet in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.Main.Pets:GetChildren()) do
+										if pet.ClassName == 'TextButton' and pet.Equipped.Visible then
+											game.Workspace['__THINGS']['__REMOTES']["join coin"]:InvokeServer({[1] = coin, [2] = {[1] = pet.Name}})
+											game.Workspace['__THINGS']['__REMOTES']["farm coin"]:FireServer({[1] = coin, [2] = pet.Name})
+										end
+									end
+								end
+							elseif getgenv().autofarmmode == "Gem Farm" then
+								for _, pet in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.Main.Pets:GetChildren()) do
+									if pet.ClassName == 'TextButton' and pet.Equipped.Visible then
+										game.Workspace['__THINGS']['__REMOTES']["join coin"]:InvokeServer({[1] = coin, [2] = {[1] = pet.Name}})
+										game.Workspace['__THINGS']['__REMOTES']["farm coin"]:FireServer({[1] = coin, [2] = pet.Name})
+
+										break
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "EzPets - AutoFarm";
+			Duration = 3;
+		})
+	end
+end)
+
+autofarm_section:NewToggle("Instant Collect", "Toggle Instant Collect.", function(bool)
+	getgenv().instantcollect = bool
+	if getgenv().instantcollect then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Instant Collect";
+			Duration = 3;
+		})
+
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("a", "claim orbs")
+
+		while wait() and getgenv().instantcollect do
+			for _, v in pairs(game:GetService("Workspace")["__THINGS"].Orbs:GetChildren()) do
+				local args = {
+					[1] = {
+						[1] = {
+							[1] = v.Name
+						}
+					}
+				}
+
+				workspace.__THINGS.__REMOTES:FindFirstChild("claim orbs"):FireServer(unpack(args))
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Instant Collect";
+			Duration = 3;
+		})
+	end
+end)
+
+autofarm_section:NewToggle("Farming Stats", "Toggle Farming Stats.", function(bool)
+	getgenv().farmingstats = bool
+	if getgenv().farmingstats then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Farming Stats";
+			Duration = 3;
+		})
+
+		local menus = game:GetService("Players").LocalPlayer.PlayerGui.Main.Right
+		_G.MyTypes = {}
+	
+		local function comma_value(amount)
+			local formatted = amount
+			while true do  
+				formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1,%2")
+				if (k == 0) then
+					break
+				end
+			end
+			return formatted
+		end
+	
+		local function get(thistype)
+			return string.gsub(game.Players.LocalPlayer.PlayerGui.Main.Right[thistype].Amount.Text, ",", "")
+		end
+	
+		game:GetService("Players").LocalPlayer.PlayerGui.Main.Right.Coins.LayoutOrder = 99997
+		game:GetService("Players").LocalPlayer.PlayerGui.Main.Right.UIListLayout.HorizontalAlignment = 2
+	
+		for _, v in pairs({"Fantasy Coins", "Coins", "Diamonds"}) do
+			if not menus:FindFirstChild(v .. "2") then
+				local tempmaker = menus:FindFirstChild(v):Clone()
+				tempmaker.Name = tostring(tempmaker.Name .. "2")
+				tempmaker.Parent = menus
+				tempmaker.Size = UDim2.new(0, 200, 0, 35)
+				_G.MyTypes[v] = tempmaker
+	
+			end
+		end
+	
+		game:GetService("Players").LocalPlayer.PlayerGui.Main.Right.Diamonds2.Add.Visible = false
+	
+		for _, v in pairs({"Fantasy Coins", "Coins", "Diamonds"}) do
+			spawn(function()
+				local megatable = {}
+				local imaginaryi = 1
+				while wait(0.5) and getgenv().farmingstats do
+					local currentbal = get(v)
+					megatable[imaginaryi] = currentbal
+					local diffy = currentbal - (megatable[imaginaryi-120] or megatable[1])
+					imaginaryi = imaginaryi + 1 
+					_G.MyTypes[v].Amount.Text = tostring(comma_value(diffy) .." in 60s")
+					_G.MyTypes[v]["Amount_odometerGUIFX"].Text = tostring(comma_value(diffy) .." in 60s")
+				end
+	
+				_G.MyTypes[v]:Destroy()
+	
+			end)
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Farming Stats";
+			Duration = 3;
+		})
+	end
+end)
+
+--AutoFarm Settings
+autofarmsettings_section:NewDropdown("Mode", "Choose AutoFarm Mode.", {"Normal", "Gem Farm"}, function(choice)
+	getgenv().autofarmmode = choice
+end)
+
+local worlds = {}
+for _, v in pairs(game:GetService("ReplicatedStorage").Game.Coins:GetChildren()) do
+	table.insert(worlds, v.Name)
+end
+
+autofarmsettings_section:NewDropdown("World", "Choose world where you want to AutoFarm.", worlds, function(choice)
+	getgenv().autofarmworld = choice
+
+	local areas = {}
+	for _, v in pairs(game:GetService("ReplicatedStorage").Game.Coins[getgenv().autofarmworld]:GetChildren()) do
+		table.insert(areas, v.Name)
+	end
+
+	areas_dropdown:Refresh(areas)
+end)
+
+local areas = {}
+for _, v in pairs(game:GetService("ReplicatedStorage").Game.Coins[getgenv().autofarmworld]:GetChildren()) do
+	table.insert(areas, v.Name)
+end
+
+areas_dropdown = autofarmsettings_section:NewDropdown("Area", "Choose area where you want to AutoFarm.", areas, function(choice)
+	getgenv().autofarmarea = choice
+end)
+
+local targets = {"All"}
+for _, v in pairs(game:GetService("ReplicatedStorage").Assets.CoinAssets:GetDescendants()) do
+	if v.Name == "Particles" and v.parent.Name ~= "Super Chest" then
+		table.insert(targets, v.parent.Name)
+	end
+end
+
+autofarmsettings_section:NewDropdown("Target", "Choose target you want to AutoFarm.", targets, function(choice)
+	getgenv().autofarmtarget = choice
+end)
+
+--Pets
+local pets_tab = window:NewTab("Pets")
+local eggs_section = pets_tab:NewSection("Open Eggs")
+local enchant_section = pets_tab:NewSection("Auto Enchant")
+local goldenrb_section = pets_tab:NewSection("Auto Golden / Rainbow")
+local petsothers_section = pets_tab:NewSection("Others")
+
+local eggs = {}
+for _, world in pairs(game:GetService("ReplicatedStorage").Game.Eggs:GetChildren()) do
+	for _, v in pairs(game:GetService("ReplicatedStorage").Game.Eggs[world.Name]:GetChildren()) do
+		table.insert(eggs, v.name)
+	end
+end
+
+eggs_section:NewToggle("Open All Eggs", "Toggle Open All Eggs.", function(bool)
+	getgenv().openalleggs = bool
+	if getgenv().openalleggs then
+		notify({
+			Description = "Toggled.";
+			Title = "EzPets - Open All Eggs";
+			Duration = 3;
+		})
+
+		while getgenv().openalleggs do
+			workspace.__THINGS.__REMOTES.MAIN:FireServer("b", "buy egg")
+			
+			for _, v in pairs(eggs) do
+				if getgenv().openalleggs then
+					workspace.__THINGS.__REMOTES:FindFirstChild("buy egg"):InvokeServer({v, getgenv().triplehatch})
+
+					wait(1)
+				end
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Open All Eggs";
+			Duration = 3;
+		})
+	end
+end)
+
+eggs_section:NewDropdown("Egg Type", "Choose egg type you want to Hatch.", eggs, function(choice)
+	getgenv().eggtype = choice
+end)
+
+eggs_section:NewTextBox("Egg Amount", "Define egg amount you want to Hatch.", function(text)
+	getgenv().eggamount = tonumber(text)
+end)
+
+eggs_section:NewToggle("Triple Hatch", "Toggle Triple Hatch. (Need Triple Hatch Gamepass)", function(bool)
+	getgenv().triplehatch = bool
+end)
+
+eggs_section:NewToggle("Start Hatching", "Start Hatching eggs.", function(bool)
+	getgenv().autohatchrunning = bool
+	if getgenv().autohatchrunning then
+		notify({
+			Description = "Hatching Started for " .. getgenv().eggtype .. ".";
+			Title = "chrexhub - Auto Hatch";
+			Duration = 3;
+		})
+
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("b", "buy egg")
+
+		for i = 1, getgenv().eggamount do
+			if getgenv().autohatchrunning then
+				workspace.__THINGS.__REMOTES:FindFirstChild("buy egg"):InvokeServer({getgenv().eggtype, getgenv().triplehatch})
+
+				wait(1)
+			end
+		end
+	else
+		notify({
+			Description = "Hatching Stopped for " .. getgenv().eggtype .. ".";
+			Title = "ChrexHub - Auto Hatch";
+			Duration = 3;
+		})
+	end
+end)
+
+enchant_section:NewTextBox("Pet's Nickname", "Define Pet's Nickname.", function(text)
+	getgenv().toenchant = text
+end)
+
+enchant_section:NewTextBox("Budget", "Define your budget for Auto Enchant .", function(text)
+	getgenv().enchantbudget = tonumber(text)
+end)
+
+local enchants_list = {}
+
+for _, z in pairs(game:GetService("ReplicatedStorage").Framework.Modules["1 | Directory"].Powers:GetChildren()) do
+	local enchants = require(game:GetService("ReplicatedStorage").Framework.Modules["1 | Directory"].Powers[z.Name])
+	for _, v in pairs(enchants) do
+		for _, b in pairs(v) do
+			if type(b) == "table" then
+				for _, d in pairs(b) do
+					for e, f in pairs(d) do
+						if e == "title" then
+							table.insert(enchants_list, f)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+enchant_section:NewDropdown("Enchantment", "Choose Enchantment.", enchants_list, function(choice)
+	getgenv().enchantwanted = choice
+end)
+
+--[[
+enchant_section:NewDropdown("Second Enchantment", "Choose Second Enchantment.", enchants_list, function(choice)
+	getgenv().secondenchant = choice
+end)
+--]]
+
+enchant_section:NewToggle("Stop when Double or Triple Enchantment", "Stop enchanting if you got a double or a triple enchantment.", function(bool)
+	getgenv().stopenchantif2or3 = bool
+end)
+
+enchant_section:NewToggle("Start Enchanting", "Start Enchanting your Pet.", function(bool)
+	getgenv().autoenchantrunning = bool
+	if getgenv().autoenchantrunning then
+		notify({
+			Description = "Auto Enchant Started for " .. getgenv().enchantwanted .. ".";
+			Title = "ChrexHub - Auto Enchant";
+			Duration = 3;
+		})
+
+		if getgenv().toenchant and getgenv().enchantbudget and getgenv().enchantwanted then
+			for _, v in pairs(require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Save.Get().Pets) do
+				if v["nk"] == getgenv().toenchant then
+					getgenv().toenchantid = v["uid"]
+					getgenv().enchantbudgetused = 0
+
+					local function CorrectlyEnchanted()
+						for _, a in pairs(require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Save.Get().Pets) do
+							if a["uid"] == getgenv().toenchantid then
+								local petenchants = {}
+								
+								if a["powers"] then
+									for _, b in pairs(a["powers"]) do
+										local enchant = ""
+										for _, c in pairs(b) do
+											if typeof(c) == "number" then
+												local enchantlevel = ""
+												if c < 4 then
+													for h = 1, c do
+														enchantlevel = enchantlevel .. "I"
+													end
+												elseif c == 4 then
+													enchantlevel = enchantlevel .. "IV"
+												elseif c == 5 then
+													enchantlevel = enchantlevel .. "V"
+												end
+												
+												enchant = enchant .. " " .. enchantlevel
+											else
+												enchant = enchant .. c
+											end
+
+											if enchant == "Teamwork I" then
+												enchant = "Teamwork"
+											elseif enchant == "Teamwork II" then
+												enchant = "Super Teamwork"
+											elseif enchant == "Charm I" then
+												enchant = "Charm"
+											elseif enchant == "Magnet I" then
+												enchant = "Magnet"
+											elseif enchant == "Glittering I" then
+												enchant = "Glittering"
+											elseif enchant == "Royalty I" then
+												enchant = "Royalty"
+											elseif enchant == "Best Friend I" then
+												enchant = "Best Friend"
+											end
+										end
+
+										table.insert(petenchants, enchant)
+									end
+								end
+
+								
+								if getgenv().stopenchantif2or3 then
+									if #petenchants == 2 or #petenchants == 3 then
+										return true
+									end
+								end
+
+								for _, g in pairs(petenchants) do
+									notify({
+										Description = "Auto Enchant got " .. g .. ".";
+										Title = "EzPets - Auto Enchant";
+										Duration = 3;
+									})
+
+									if g == getgenv().enchantwanted then
+										return true
+									end
+								end
+							end
+						end
+
+						return false
+					end
+
+					while wait() and getgenv().autoenchantrunning and getgenv().enchantbudgetused < getgenv().enchantbudget and not CorrectlyEnchanted() do
+						workspace.__THINGS.__REMOTES:FindFirstChild("enchant pet"):InvokeServer({getgenv().toenchantid})
+						getgenv().enchantbudgetused += 10000
+					end
+					
+				end
+			end
+		end
+	else
+		notify({
+			Description = "Auto Enchant Stopped for " .. getgenv().enchantwanted .. ".";
+			Title = "ChrexHub - Auto Enchant";
+			Duration = 3;
+		})
+	end
+end)
+
+goldenrb_section:NewDropdown("Mode", "Choose if you want to make golden or rainbow pets.", {"Golden", "Rainbow", "Rainbow 13%", "Both"}, function(choice)
+	getgenv().autogoldenrbmode = choice
+end)
+
+goldenrb_section:NewDropdown("Pet Amount", "Choose how many normal pets you use each time to make golden / rainbow pet.", {"1 Pet (13%)", "2 Pets (29%)", "3 Pets (47%)", "4 Pets (63%)", "5 Pets (88%)", "6 Pets (100%)"}, function(choice)
+	getgenv().autogoldenrbpetamount = tonumber(choice:sub(1, 1))
+end)
+
+goldenrb_section:NewToggle("Start", "Start making Pets with choosed Mode.", function(bool)
+	getgenv().autogoldenrbrunning = bool
+	if getgenv().autogoldenrbrunning then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Auto " .. getgenv().autogoldenrbmode;
+			Duration = 3;
+		})
+
+		while wait() and getgenv().autogoldenrbrunning do
+			local petsTable = {}
+			for _, v in pairs(require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Save.Get().Pets) do
+				if v.g then
+					if getgenv().autogoldenrbmode == "Both" or getgenv().autogoldenrbmode == "Rainbow" then
+						if petsTable[tostring("Gold"..v.id)] then
+							table.insert(petsTable[tostring("Gold"..v.id)], v.uid)
+						else
+							petsTable[tostring("Gold"..v.id)] = {}
+							table.insert(petsTable[tostring("Gold"..v.id)], v.uid)
+						end
+					end
+				elseif not v.r then
+					if getgenv().autogoldenrbmode == "Both" or getgenv().autogoldenrbmode == "Golden" or getgenv().autogoldenrbmode == "Rainbow 13%" then
+						if petsTable[tostring("Regular"..v.id)] then
+							table.insert(petsTable[tostring("Regular"..v.id)], v.uid)
+						else
+							petsTable[tostring("Regular"..v.id)] = {}
+							table.insert(petsTable[tostring("Regular"..v.id)], v.uid)
+						end
+					end
+				end
+			end
+
+			for i, v in pairs(petsTable) do
+				if getgenv().autogoldenrbmode == "Rainbow 13%" then
+					getgenv().autogoldenrbpetamount = 1
+				end
+				
+				if #v >= getgenv().autogoldenrbpetamount and getgenv().autogoldenrbrunning then
+					if string.find(i, "Regular") and getgenv().autogoldenrbrunning then
+						if getgenv().autogoldenrbmode ~= "Rainbow 13%" then
+							local tomakeTable = {}
+							for i = 1, getgenv().autogoldenrbpetamount do
+								table.insert(tomakeTable, v[i])
+							end
+
+							require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Network.Invoke("use golden machine", tomakeTable)
+						else
+							require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Network.Invoke("use rainbow machine", {[1] = v[1]})
+						end
+					elseif string.find(i, "Gold") and getgenv().autogoldenrbrunning then
+						local tomakeTable = {}
+						for i = 1, getgenv().autogoldenrbpetamount do
+							table.insert(tomakeTable, v[i])
+						end
+
+						require((game.ReplicatedStorage:WaitForChild("Framework")):WaitForChild("Library")).Network.Invoke("use rainbow machine", tomakeTable)
+						wait(1)
+					end
+				end
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Auto " .. getgenv().autogoldenrbmode;
+			Duration = 3;
+		})
+	end
+end)
+
+petsothers_section:NewButton("Equip Best Pets", "Equip Best Pets.", function()
+	notify({
+		Description = "Equipped.";
+		Title = "ChrexHub - Equip Best Pets";
+		Duration = 3;
+	})
+
+	workspace.__THINGS.__REMOTES:FindFirstChild("equip best pets"):InvokeServer({})
+end)
+
+--Movement
+local movement_tab = window:NewTab("Movement")
+local movement_section = movement_tab:NewSection("Movement")
+
+--NoClip
+movement_section:NewToggle("NoClip", "Toggle NoClip.", function(bool)
+	getgenv().noclip = bool
+	if getgenv().noclip then
+		notify({
+			Description = "Toggled.";
+			Title = "EzPets - NoClip";
+			Duration = 3;
+		})
+
+		local function NoClip()
+			for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+				if v:IsA("BasePart") and v.CanCollide then
+					v.CanCollide = false
+				end
+			end
+		end
+
+		noclip = game:GetService("RunService").Stepped:Connect(NoClip)
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - NoClip";
+			Duration = 3;
+		})
+
+		noclip:Disconnect()
+	end
+end)
+
+--FlyJump
+movement_section:NewToggle("FlyJump", "Toggle FlyJump.", function(bool)
+	getgenv().flyjump = bool
+	if getgenv().flyjump then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - FlyJump";
+			Duration = 3;
+		})
+
+		flyjump = game:GetService("UserInputService").JumpRequest:Connect(function()
+			game:GetService"Players".LocalPlayer.Character.Humanoid:ChangeState("Jumping")
+		end)
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - FlyJump";
+			Duration = 3;
+		})
+
+		flyjump:Disconnect()
+	end
+end)
+
+--WalkSpeed
+movement_section:NewSlider("WalkSpeed", "Modify your WalkSpeed.", 250, 16, function(value)
+	getgenv().walkspeed = value
+	if game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed ~= getgenv().walkspeed then
+		game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed = getgenv().walkspeed
+	end
+end)
+
+--JumpPower
+movement_section:NewSlider("JumpPower", "Modify your JumpPower.", 250, 50, function(value)
+	getgenv().jumppower = value
+	if game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower ~= getgenv().jumppower then
+		game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = getgenv().jumppower
+	end
+end)
+
+--Others
+local others_tab = window:NewTab("Others")
+local others_section = others_tab:NewSection("Others")
+
+others_section:NewButton("Unlock all Gamepasses", "Unlock all Gamepasses.", function()
+	notify({
+		Description = "Gamepasses Unlocked.";
+		Title = "ChrexHub - Unlock all Gamepasses";
+		Duration = 3;
+	})
+
+	require(game:GetService("ReplicatedStorage").Framework.Modules.Client["5 | Gamepasses"]).Owns = function() return true end
+end)
+
+others_section:NewButton("Visual Pet Dupe", "Make a Visual Pet Dupe..", function()
+	notify({
+		Description = "Visual Pet Dupe Started.";
+		Title = "ChrexHub - Visual Pet Dupe";
+		Duration = 3;
+	})
+
+	for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.Main.Pets:GetChildren()) do
+		if v.ClassName == "TextButton" then
+			local duped = v:Clone()
+			duped.Equipped.Visible = false
+			duped.Parent = v.Parent
+	
+			local petamount = game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.PetAmount.Text:gsub(" Pets", "")
+			game:GetService("Players").LocalPlayer.PlayerGui.Inventory.Frame.PetAmount.Text = tonumber(petamount) + 1 .. " Pets"
+
+			wait(0.1)
+		end
+	end
+end)
+
+others_section:NewButton("FPS Booster", "Enable FPS Booster.", function()
+	notify({
+		Description = "Enabled.";
+		Title = "ChrexHub - FPS Booster";
+		Duration = 3;
+	})
+
+	sethiddenproperty(game:GetService("Lighting"), "Technology", 2)
+	sethiddenproperty(game:GetService("Workspace").Terrain, "Decoration", false)
+
+	game:GetService("Workspace").Terrain.WaterWaveSize = 0
+	game:GetService("Workspace").Terrain.WaterWaveSpeed = 0
+	game:GetService("Workspace").Terrain.WaterReflectance = 0
+	game:GetService("Workspace").Terrain.WaterTransparency = 0
+	game:GetService("Lighting").GlobalShadows = 0
+	game:GetService("Lighting").FogEnd = 9e9
+	game:GetService("Lighting").Brightness = 0
+
+	settings().Rendering.QualityLevel = "Level01"
+
+	for i, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+		if v:IsA("BasePart") and not v:IsA("MeshPart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+		elseif (v:IsA("Decal") or v:IsA("Texture")) then
+			v.Transparency = 1
+		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Lifetime = NumberRange.new(0)
+		elseif v:IsA("Explosion") then
+			v.BlastPressure = 1
+			v.BlastRadius = 1
+		elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+			v.Enabled = false
+		elseif v:IsA("MeshPart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+			v.TextureID = 10385902758728957
+		elseif v:IsA("SpecialMesh")  then
+			v.TextureId = 0
+		elseif v:IsA("ShirtGraphic") then
+			v.Graphic = 0
+		elseif (v:IsA("Shirt") or v:IsA("Pants")) then
+			v[v.ClassName.."Template"] = 0
+		end
+	end
+	for i = 1, #game:GetService("Lighting"):GetChildren() do
+		e = game:GetService("Lighting"):GetChildren()[i]
+		if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+			e.Enabled = false
+		end
+	end
+
+	game:GetService("Workspace").DescendantAdded:Connect(function(v)
+		wait()
+	
+	if v:IsA("BasePart") and not v:IsA("MeshPart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+		elseif v:IsA("Decal") or v:IsA("Texture") then
+			v.Transparency = 1
+		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Lifetime = NumberRange.new(0)
+		elseif v:IsA("Explosion") then
+			v.BlastPressure = 1
+			v.BlastRadius = 1
+		elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+			v.Enabled = false
+		elseif v:IsA("MeshPart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+			v.TextureID = 10385902758728957
+		elseif v:IsA("SpecialMesh") then
+			v.TextureId = 0
+		elseif v:IsA("ShirtGraphic") then
+			v.ShirtGraphic = 0
+		elseif (v:IsA("Shirt") or v:IsA("Pants")) then
+			v[v.ClassName.."Template"] = 0
+		end
+	end)
+end)
+
+others_section:NewToggle("Auto TP to Merchant", "Toggle Auto TP to Merchant.", function(bool)
+	getgenv().tpmerchant = bool
+	if getgenv().tpmerchant then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Auto TP to Merchant";
+			Duration = 3;
+		})
+
+		while wait() and getgenv().tpmerchant do
+			if game:GetService("Workspace")["__THINGS"]["__REMOTES"]["is merchant here"]:InvokeServer({})[1] then
+				workspace.__THINGS.__REMOTES:FindFirstChild("request world"):FireServer({"Spawn"})
+				game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(166.977295, 98.8880005, 121.763046, 0.863617063, 1.02748906e-07, 0.504148364, -6.58957262e-08, 1, -9.09260791e-08, -0.504148364, 4.53040876e-08, 0.863617063)
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Auto TP to Merchant";
+			Duration = 3;
+		})
+	end
+end)
+
+others_section:NewToggle("Auto Use Triple Coins", "Toggle AutoUse Triple Coins.", function(bool)
+	getgenv().autousetriplecoins = bool
+	if getgenv().autousetriplecoins then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Auto Use Triple Coins";
+			Duration = 3;
+		})
+
+		if getgenv().triplecoinslastused == nil then
+			getgenv().triplecoinslastused = os.time() - 1200
+		end
+
+		while wait() and getgenv().autousetriplecoins do
+			if os.time() - getgenv().triplecoinslastused >= 1200 then
+				workspace.__THINGS.__REMOTES:FindFirstChild("activate boost"):FireServer({"Triple Coins"})
+
+				getgenv().triplecoinslastused = os.time()
+			end
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Auto Use Triple Coins";
+			Duration = 3;
+		})
+	end
+end)
+
+others_section:NewToggle("Auto Redeem Rank Rewards", "Toggle Auto Redeem Rank Rewards.", function(bool)
+	getgenv().autorankrewards = bool
+	if getgenv().autorankrewards then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Auto Redeem Rank Rewards";
+			Duration = 3;
+		})
+
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("b", "redeem rank rewards")
+
+		while wait() and getgenv().autorankrewards do
+			workspace.__THINGS.__REMOTES:FindFirstChild("redeem rank rewards"):InvokeServer({})
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Auto Redeem Rank Rewards";
+			Duration = 3;
+		})
+	end
+end)
+
+others_section:NewToggle("Auto Redeem VIP Rewards", "Toggle Auto Redeem VIP Rewards.", function(bool)
+	getgenv().autoviprewards = bool
+	if getgenv().autoviprewards then
+		notify({
+			Description = "Toggled.";
+			Title = "ChrexHub - Auto Redeem VIP Rewards";
+			Duration = 3;
+		})
+
+		workspace.__THINGS.__REMOTES.MAIN:FireServer("b", "redeem vip rewards")
+
+		while wait() and getgenv().autoviprewards do
+			workspace.__THINGS.__REMOTES:FindFirstChild("redeem vip rewards"):InvokeServer({})
+		end
+	else
+		notify({
+			Description = "UnToggled.";
+			Title = "ChrexHub - Auto Redeem VIP Rewards";
+			Duration = 3;
+		})
+	end
+end)
+
+--AntiAFK
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+	VirtualUser:CaptureController()
+	VirtualUser:ClickButton2(Vector2.new())
+end)
+
+--Settings
+local settings_tab = window:NewTab("Settings")
+local settings_section = settings_tab:NewSection("UI")
+
+settings_section:NewKeybind("Toggle UI Keybind", "Bind your key to toggle UI.", Enum.KeyCode.RightControl, function()
+	library:ToggleUI()
+end)
